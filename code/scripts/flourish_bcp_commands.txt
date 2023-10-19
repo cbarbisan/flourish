@@ -1,0 +1,25 @@
+-- Create XML format file for therapist session file
+-- Some modifications are required to the format file, to handle the double-quotes in some fields but not other
+-- The field terminator specified in the bcp command is just a default to minimize the manual editing to be done
+bcp flourish.dbo.therapist_session format nul -S barbisan.database.windows.net -U cbarbisan -P "hUEYbu&TAZ!PJ&7Vva9W9o53" -c -x -t \",\" -f therapist_session.xml
+
+-- Create XML format file for therapist payment file
+-- Some modifications are required to the format file, to handle the double-quotes in some fields but not other
+-- The field terminator specified in the bcp command is just a default to minimize the manual editing to be done
+bcp flourish.dbo.therapist_payment format nul -S barbisan.database.windows.net -U cbarbisan -P "hUEYbu&TAZ!PJ&7Vva9W9o53" -c -x -t \",\" -f therapist_payment.xml
+
+
+
+-- Pre-process the file using awk to fix the session date
+awk -f fix_therapist_session.awk Therapist_Session_Export_29_09_2023_to_30_09_2023.csv > session.dat
+
+-- Import data into therapist session
+bcp flourish.dbo.therapist_session in session.dat -S barbisan.database.windows.net -U cbarbisan -P "hUEYbu&TAZ!PJ&7Vva9W9o53" -f therapist_session.xml -F 2 -e therapist_session.err
+
+
+-- Pre-process the file using awk to fix the session date and payment date
+awk -f fix_therapist_payment.awk Therapist_Payment_Export_29_09_2023_to_30_09_2023.csv > payment.dat
+
+-- Import data into therapist payment
+bcp flourish.dbo.therapist_payment in payment.dat -S barbisan.database.windows.net -U cbarbisan -P "hUEYbu&TAZ!PJ&7Vva9W9o53" -f therapist_payment.xml -F 2 -e therapist_payment.err
+

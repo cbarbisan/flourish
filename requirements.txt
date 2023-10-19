@@ -1,0 +1,96 @@
+Monthly Steady-State Process:
+
+1. Get session and payment extracts for the month, for all contractors. Load into corresponding tables.
+2. Run process which generates invoice DATA for each contractor, for the month.
+	Create invoice records
+	Create invoice detail records
+	Record which sessions have been invoiced that month for each contractor
+3. Use invoice data to generate actual invoices for each contractor
+4. Generate eTransfer checklist for each contractor payment to be sent
+5. Generate QuickBooks file for accountant
+6. Archive data extracts
+
+Other use-cases:
+
+Changed session/payment details:
+	Changes will be handled as a manual process
+	We would only update session details in our database if a new contractor invoice was required. Otherwise, Owl is the book of record for session data
+	Void any non-voided invoice containing that session
+	Manually update the session data per approved request from contractor
+	Re-generate the invoices that were voided
+		This implies that the invoice generation process must work for the entire monthly batch (all contractors) and as a one-off (a single contractor)
+		It also implies that we need details of the voided invoices (contractor and month)
+
+Chnaged payment details:
+	
+Inaccurate contractor invoice:
+
+
+
+Load session and payment data
+	There are scripts to facilitate this.
+	Owl extracts this data based on session date for sessions and payment date for payments
+	A session should only be loaded once
+		If the session details get changed, we should:
+			1. void any non-voided invoice containing that session in its details (there could be more than 1)
+			2. update the session record
+			3. regenerate the voided invoice(s)
+
+x Create/update a therapist including rate details
+	Table designed. Data will be manually maintained.
+
+x Update session/payment data?
+	
+	Sessions will be received in the extract for the month in which the session occurred.
+		If payment occurs later, the "paid" field of the session record will not be aligned, so it should be generally ignored
+	
+	Payments will be received in the extract for the month in which the payment occurred.
+	
+	No attempt will be made to AUTOMATICALLY update a record after it has been created for the first time. If this creates an issue for an invoice, updates can be made to the session record manually, and the invoice can be regenerated.
+
+Generate an invoice
+
+	This is a different type of invoice from those generated/tracked by Owl. Owl deals with clinic invoices to clients. This is contractor invoices to the clinic.
+	
+	Selection criteria:
+		Session occurred in month being invoiced, or anytime prior to that month
+		Session has not previously been invoiced per its "invoiced" flag in the invoice tracking table
+		therapist or supervisor is current contractor
+		corresponding payment record (ignore paid field in session record, as it may not be correct if payment occurred in a subsequent month)
+		attendance <> 'Cancelled'
+		note status? - If I filter on note status, I will have to support updates to session data or that session will never be paid
+		If we need to keep session data up-to-date, we can do a truncate and full load every time for session and payment data
+			but if we do that, we lose the invoiced flag. Need to externalize the invoiced flag to it's own table and make it contractor specific since
+			multiple contractors can get paid for the same session (e.g. therapist and supervisor)!!!!
+		
+	Logic:
+		Need 3 scalar UDFs which return a MONEY amount
+			1. udf_calc_contractor_amt
+			2. udf_calc_clinic_amt - we don't actually need to calculate the clinic amount, since the invoice wouldn't display that anyway
+			3. udf_calc_supervisor_amt - the contractor amount will determine the amount, regardless of whether the contractor was the therapist, supervised therapist or supervisor
+			
+		The contractor amount function will have payee specific logic, and default logic which applies if there is no specific logic for the payee.
+	
+	Transaction Details:
+		Transaction creates invoice, invoice details and updates the invoiced flag on the invoice tracking table
+		
+	How about rather than "Amount to Contractor", "Amount to Clinic", "Amount to Supervisor", we go:
+	"Amount to Contractor", "Contractor Role (e.g. Therapist/Supervisor/Supervised Therapist)", "Amount to Clinic"
+	That way, all amounts paid to the contractor are in the same column and can be totalled.
+	Do clinic amounts need to show-up at all? If so, should they only show when the contractor role is "Therapist/Supervised Therapist"?
+	Do we need contractor role in the invoice_tracking table?
+	
+Void an invoice
+
+Regenerate an invoice (in place, or void and regenerate?)
+
+Notes:
+
+	A session should only be invoiced (i.e. included in an invoice that is not void) once.
+
+	A session that has not been paid for, should not be included on an invoice until it is paid for.
+
+	Should maintain an "invoiced" flag on the session record, so we can manually excluded sessions from invoice generation.
+		Voiding an invoice would reset the flag for all sessions on the invoice.
+	
+	Do we need a table for non-Owl created charges? E.g. how do we bill for a note? Does that get captured in Owl?
