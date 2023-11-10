@@ -10,6 +10,6 @@ CREATE TABLE [dbo].[contractor] (
 );
 GO
 
-INSERT INTO dbo.therapist
+INSERT INTO dbo.contractor
 SELECT	'Leanda Barbisan, OT Reg. (Ont.)' AS contractor_name,
 		1 AS active;
