@@ -8,7 +8,7 @@ GO
 CREATE TABLE [dbo].[contractor_service_cut] (
     [contractor_id]   INT            NOT NULL,
     [service_name]    NVARCHAR (200) NOT NULL,
-    [service_cut]     DECIMAL (4, 3) NOT NULL,
-    [supervision_cut] DECIMAL (4, 3) NOT NULL,
+    [service_cut]     DECIMAL (4, 3) NOT NULL DEFAULT 0.7,
+    [supervision_cut] DECIMAL (4, 3) NOT NULL DEFAULT 0.1,
     CONSTRAINT [PK_contractor_service_cut] PRIMARY KEY CLUSTERED ([contractor_id] ASC, [service_name] ASC)
 );
