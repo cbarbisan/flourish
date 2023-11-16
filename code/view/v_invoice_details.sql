@@ -18,21 +18,23 @@ CREATE OR ALTER VIEW [dbo].[v_invoice_details]
 WITH SCHEMABINDING
 AS
 SELECT      c.contractor_id,
+            c.contractor_name,
             s.session_id,
             FORMAT(s.session_date,'yyyy-MM-dd h:mm tt') AS session_date,
             s.[service_name],
             s.client_code,
             s.duration,
             s.attendance,
+            s.note_status,
             s.fee,
             s.charged,
             s.paid,
             IIF(c.contractor_name = s.therapist_name, 'Therapist', 'Supervisor') AS service_role,
             CASE
                 WHEN c.contractor_name = s.therapist_name THEN
-                    ROUND(sc.service_cut*s.charged, 2)
+                    CAST(sc.service_cut*s.charged AS MONEY)
                 ELSE
-                    ROUND(sc.supervision_cut*s.charged, 2)
+                    CAST(sc.supervision_cut*s.charged AS MONEY)
             END AS contractor_amount
 FROM        dbo.contractor c
 JOIN        dbo.owl_session s
@@ -41,7 +43,9 @@ JOIN        dbo.contractor_service_cut sc
 ON          c.contractor_id = sc.contractor_id
 AND         s.service_name = sc.service_name
 WHERE       s.attendance NOT IN ('Cancelled', 'Non Billable')
-AND         s.note_status IN ('Signed Note', 'N/A')
+-- If we filter on note status, then we will have to maintain our session data, or sessions that didn't have a signed
+-- note when they were loaded, will never get added to the invoice!
+--AND         s.note_status IN ('Signed Note', 'N/A')
 AND         EXISTS (SELECT 1 FROM dbo.payment WHERE session_id = s.session_id)
 AND         NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_tracking WHERE session_id = s.session_id and contractor_name = s.therapist_name and invoiced = 1);
 GO
