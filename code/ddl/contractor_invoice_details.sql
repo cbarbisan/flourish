@@ -14,9 +14,8 @@ CREATE TABLE [dbo].[contractor_invoice_details] (
     [fee]                           MONEY          NOT NULL,
     [charged]                       MONEY          NOT NULL,
     [paid]                          MONEY          NOT NULL,
-    [contractor_amount]             MONEY          NOT NULL,
-    [clinic_amount]                 MONEY          NOT NULL,
-    [supervisor_amount]             MONEY DEFAULT 0 NOT NULL,
+    [service_role]                  NVARCHAR(20)   NOT NULL,
+    [contractor_amount]             MONEY          NOT NULL
     CONSTRAINT [PK_contractor_invoice_details] PRIMARY KEY CLUSTERED ([contractor_invoice_details_id] ASC)
 );
 GO
