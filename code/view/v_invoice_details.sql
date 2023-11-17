@@ -32,14 +32,14 @@ SELECT      c.contractor_id,
             IIF(c.contractor_name = s.therapist_name, 'Therapist', 'Supervisor') AS service_role,
             CASE
                 WHEN c.contractor_name = s.therapist_name THEN
-                    CAST(sc.service_cut*s.charged AS MONEY)
+                    CAST(COALESCE(sc.service_cut,0.7)*s.charged AS MONEY)
                 ELSE
-                    CAST(sc.supervision_cut*s.charged AS MONEY)
+                    CAST(COALESCE(sc.supervision_cut,0.1)*s.charged AS MONEY)
             END AS contractor_amount
 FROM        dbo.contractor c
 JOIN        dbo.owl_session s
 ON          (c.contractor_name = s.therapist_name OR c.contractor_name = s.supervisor)
-JOIN        dbo.contractor_service_cut sc
+LEFT JOIN   dbo.service_cut_override sc
 ON          c.contractor_id = sc.contractor_id
 AND         s.service_name = sc.service_name
 WHERE       s.attendance NOT IN ('Cancelled', 'Non Billable')
