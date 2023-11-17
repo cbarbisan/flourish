@@ -46,5 +46,4 @@ AND         s.service_name = sc.service_name
 -- note when they were loaded, will never get added to the invoice!
 --AND         s.note_status IN ('Signed Note', 'N/A')
 WHERE       EXISTS (SELECT 1 FROM dbo.payment WHERE session_id = s.session_id)
-AND         NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_tracking WHERE session_id = s.session_id and contractor_name = s.therapist_name and invoiced = 1);
 GO
