@@ -42,10 +42,9 @@ ON          (c.contractor_name = s.therapist_name OR c.contractor_name = s.super
 LEFT JOIN   dbo.service_cut_override sc
 ON          c.contractor_id = sc.contractor_id
 AND         s.service_name = sc.service_name
-WHERE       s.attendance NOT IN ('Cancelled', 'Non Billable')
 -- If we filter on note status, then we will have to maintain our session data, or sessions that didn't have a signed
 -- note when they were loaded, will never get added to the invoice!
 --AND         s.note_status IN ('Signed Note', 'N/A')
-AND         EXISTS (SELECT 1 FROM dbo.payment WHERE session_id = s.session_id)
+WHERE       EXISTS (SELECT 1 FROM dbo.payment WHERE session_id = s.session_id)
 AND         NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_tracking WHERE session_id = s.session_id and contractor_name = s.therapist_name and invoiced = 1);
 GO
