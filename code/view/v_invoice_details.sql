@@ -54,4 +54,5 @@ AND         s.service_name = sc.service_name
 -- If we filter on note status, then we will have to maintain our session data, or sessions that didn't have a signed
 -- note when they were loaded, will never get added to the invoice!
 --AND         s.note_status IN ('Signed Note', 'N/A')
+WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = s.session_id)
 GO
