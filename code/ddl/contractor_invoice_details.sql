@@ -5,6 +5,7 @@ GO
 CREATE TABLE [dbo].[contractor_invoice_details] (
     [contractor_invoice_details_id]  INT      IDENTITY (1, 1) NOT NULL,
     [contractor_invoice_id]          INT            NOT NULL,
+    [contractor_id]                  INT            NOT NULL,
     [session_id]                    INT            NOT NULL,
     [session_date]                  DATETIME       NOT NULL,
     [service_name]                  NVARCHAR(200)  NOT NULL,

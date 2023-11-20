@@ -2,16 +2,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
--- What inputs are required from the user?
---      Therapist
---      Year/Month
-
--- Might want to maintain a table of billable attendance statuses to join into this query
--- Best to not hard-code those status values in the WHERE clause
--- Ditto for note status values, if the plan is to do a full refresh of session data every month, to get updates to the note status field
 
 -- Implementation note - this could be a view, which gets queried when generating invoices and invoice details
--- That would allow us to pass in contractor role to the UDF which calculates amounts
 -- It would also allow us to aggregate the invoice details into the parent invoice record
 
 CREATE OR ALTER VIEW [dbo].[v_invoice_details]
@@ -51,8 +43,6 @@ ON          s.session_id = sp.session_id
 LEFT JOIN   dbo.service_cut_override sc
 ON          c.contractor_id = sc.contractor_id
 AND         s.service_name = sc.service_name
--- If we filter on note status, then we will have to maintain our session data, or sessions that didn't have a signed
--- note when they were loaded, will never get added to the invoice!
---AND         s.note_status IN ('Signed Note', 'N/A')
-WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = s.session_id)
+WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = s.session_id and contractor_id = c.contractor_id)
+AND         s.note_status IN ('Signed Note', 'N/A')
 GO
