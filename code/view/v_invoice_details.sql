@@ -18,31 +18,36 @@ WITH SESSION_PAYMENT AS (
 SELECT      sp.payment_date,
             c.contractor_id,
             c.contractor_name,
-            s.session_id,
-            FORMAT(s.session_date,'yyyy-MM-dd h:mm tt') AS session_date,
-            s.[service_name],
-            s.client_code,
-            s.duration,
-            s.attendance,
-            s.note_status,
-            s.fee,
-            s.charged,
-            s.paid,
-            IIF(c.contractor_name = s.therapist_name, 'Therapist', 'Supervisor') AS service_role,
+            sess.session_id,
+            FORMAT(sess.session_date,'yyyy-MM-dd h:mm tt') AS session_date,
+            sess.[service_name],
+            sess.client_code,
+            sess.duration,
+            sess.attendance,
+            sess.note_status,
+            sess.fee,
+            sess.charged,
+            sess.paid,
+            IIF(c.contractor_name = sess.therapist_name, 'Therapist', 'Supervisor') AS service_role,
             CASE
-                WHEN c.contractor_name = s.therapist_name THEN
-                    CAST(COALESCE(sc.service_cut,0.7)*s.charged AS MONEY)
+                WHEN c.contractor_name = sess.therapist_name THEN
+                    CAST(COALESCE(sc.service_cut,0.7)*sess.charged AS MONEY)
                 ELSE
-                    CAST(COALESCE(sc.supervision_cut,0.1)*s.charged AS MONEY)
+                    CAST(COALESCE(sc.supervision_cut,0.1)*sess.charged AS MONEY)
             END AS contractor_amount
 FROM        dbo.contractor c
-JOIN        dbo.owl_session s
-ON          (c.contractor_name = s.therapist_name OR c.contractor_name = s.supervisor)
+JOIN        dbo.owl_session sess
+ON          (c.contractor_name = sess.therapist_name OR c.contractor_name = sess.supervisor)
+LEFT JOIN   dbo.contractor t
+ON          sess.therapist_name = t.contractor_name
+LEFT JOIN   dbo.contractor s
+ON          sess.supervisor = s.contractor_name
 JOIN        SESSION_PAYMENT sp
-ON          s.session_id = sp.session_id
+ON          sess.session_id = sp.session_id
 LEFT JOIN   dbo.service_cut_override sc
-ON          c.contractor_id = sc.contractor_id
-AND         s.service_name = sc.service_name
-WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = s.session_id and contractor_id = c.contractor_id)
-AND         s.note_status IN ('Signed Note', 'N/A')
+ON          t.contractor_id = sc.therapist_id
+AND         sess.service_name = sc.service_name
+AND         ISNULL(s.contractor_id,0) = ISNULL(sc.supervisor_id,0)
+WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = sess.session_id and contractor_id = c.contractor_id)
+AND         sess.note_status IN ('Signed Note', 'N/A')
 GO
