@@ -7,10 +7,16 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[service_cut_override] (
+    [record_id]       INT            IDENTITY (1, 1) NOT NULL,
     [therapist_id]    INT            NOT NULL,
     [service_name]    NVARCHAR (200) NOT NULL,
-    [supervisor_id]   INT            NOT NULL,
-    [service_cut]     DECIMAL (4, 3) DEFAULT ((0.7)) NOT NULL,
+    [supervisor_id]   INT            NULL,
+    [service_cut]     DECIMAL (4, 3) CONSTRAINT [DEFAULT_service_cut_override_service_cut] DEFAULT 0.7 NOT NULL,
     [supervision_cut] DECIMAL (4, 3) NULL,
-    CONSTRAINT [PK_contractor_service_cut] PRIMARY KEY CLUSTERED ([therapist_id] ASC, [service_name] ASC, [supervisor_id] ASC)
+    CONSTRAINT [PK_service_cut_override] PRIMARY KEY CLUSTERED ([record_id] ASC)
 );
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [Index_service_cut_override_1]
+    ON [dbo].[service_cut_override]([therapist_id] ASC, [service_name] ASC, [supervisor_id] ASC);
+GO
