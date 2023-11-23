@@ -1,12 +1,12 @@
 -- Create XML format file for therapist session file
 -- Some modifications are required to the format file, to handle the double-quotes in some fields but not other
 -- The field terminator specified in the bcp command is just a default to minimize the manual editing to be done
-bcp flourish.dbo.therapist_session format nul -S barbisan.database.windows.net -U cbarbisan -P "hUEYbu&TAZ!PJ&7Vva9W9o53" -c -x -t \",\" -f therapist_session.xml
+bcp flourish.dbo.therapist_session format nul -S barbisan.database.windows.net -U <userid> -P "<password>" -c -x -t \",\" -f therapist_session.xml
 
 -- Create XML format file for therapist payment file
 -- Some modifications are required to the format file, to handle the double-quotes in some fields but not other
 -- The field terminator specified in the bcp command is just a default to minimize the manual editing to be done
-bcp flourish.dbo.therapist_payment format nul -S barbisan.database.windows.net -U cbarbisan -P "hUEYbu&TAZ!PJ&7Vva9W9o53" -c -x -t \",\" -f therapist_payment.xml
+bcp flourish.dbo.therapist_payment format nul -S barbisan.database.windows.net -U <userid> -P "<password>" -c -x -t \",\" -f therapist_payment.xml
 
 
 
@@ -14,12 +14,12 @@ bcp flourish.dbo.therapist_payment format nul -S barbisan.database.windows.net -
 awk -f fix_therapist_session.awk Session_Export_01_01_2023_to_02_11_2023-2.csv > session.dat
 
 -- Import data into therapist session
-bcp flourish.dbo.therapist_session in session.dat -S barbisan.database.windows.net -U cbarbisan -P "ZEvYLvC$6Vi%Jmg&oTx9miTt" -f therapist_session.xml -F 2 -e therapist_session.err
+bcp flourish.dbo.therapist_session in session.dat -S barbisan.database.windows.net -U <userid> -P "<password>" -f therapist_session.xml -F 2 -e therapist_session.err
 
 
 -- Pre-process the file using awk to fix the session date and payment date
 awk -f fix_therapist_payment.awk Payment_Export_01_01_2023_to_02_11_2023.csv > payment.dat
 
 -- Import data into therapist payment
-bcp flourish.dbo.therapist_payment in payment.dat -S barbisan.database.windows.net -U cbarbisan -P "ZEvYLvC$6Vi%Jmg&oTx9miTt" -f therapist_payment.xml -F 2 -e therapist_payment.err
+bcp flourish.dbo.therapist_payment in payment.dat -S barbisan.database.windows.net -U <userid> -P "<password>" -f therapist_payment.xml -F 2 -e therapist_payment.err
 
