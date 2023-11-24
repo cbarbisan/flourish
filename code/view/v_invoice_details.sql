@@ -28,7 +28,7 @@ SELECT      sp.payment_date,
             sess.fee,
             sess.charged,
             sess.paid,
-            IIF(c.contractor_name = sess.therapist_name, 'Therapist', 'Supervisor') AS service_role,
+            IIF(c.contractor_id = t.contractor_id, 'Therapist', 'Supervisor') AS service_role,
             CASE
                 WHEN c.contractor_name = sess.therapist_name THEN
                     CAST(COALESCE(sc.service_cut,0.7)*sess.charged AS MONEY)
@@ -49,5 +49,5 @@ ON          t.contractor_id = sc.therapist_id
 AND         sess.service_name = sc.service_name
 AND         ISNULL(s.contractor_id,0) = ISNULL(sc.supervisor_id,0)
 WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = sess.session_id and contractor_id = c.contractor_id)
-AND         sess.note_status IN ('Signed Note', 'N/A')
+AND         (sess.note_status IN ('Signed Note', 'N/A') OR c.contractor_id = s.contractor_id)
 GO
