@@ -2,26 +2,46 @@
 -- invoice frequency matches the frequency passed into the proc.
 -- Invoice will include eligible sessions for the date range specified.
 CREATE OR ALTER PROCEDURE dbo.sp_create_invoices
-    @start_date DATE,
-    @end_date DATE,
+    @period_start DATE,
+    @period_end DATE,
     @invoice_frequency NVARCHAR(50)
 AS 
 BEGIN
 
     SET NOCOUNT ON;
 
-    DECLARE @launch_date DATE = '20231201';
+    DECLARE @launch_date DATE = NULL;
+
+    SELECT  @launch_date = COALESCE(MIN(period_start), '20231001')
+    FROM    dbo.contractor_invoice;
+
+PRINT('Launch Date = ' + CAST(@launch_date AS NVARCHAR));
     
     /*
         Notes:
-            1. Generate contractor invoice id
-            2. Exclude sessions prior to launch.
-            3. We may have to manually fix some invoices the first month, to include sessions that are excluded by note 2.
+            1. Complete all 3 INSERTs as a single transaction
     */
     
-    -- INSERTs all sessions that were paid this month, regardless of when the session occurred.
+    -- Creates the invoice records
+    INSERT INTO dbo.contractor_invoice
+    SELECT  DISTINCT
+            CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Eastern Standard Time' AS DATE) AS invoice_date,
+            @period_start,
+            @period_end,
+            inv.contractor_id,
+            inv.contractor_name,
+            0 AS void
+    FROM    dbo.v_invoice_details inv
+    JOIN    dbo.contractor c
+    ON      inv.contractor_id = c.contractor_id
+    WHERE   inv.payment_date BETWEEN @period_start AND @period_end
+    AND     c.invoice_frequency = @invoice_frequency;
+
+    -- INSERTs all sessions that were paid this period, regardless of when the session occurred.
     INSERT INTO dbo.contractor_invoice_details
-    SELECT  session_id,
+    SELECT  ci.contractor_invoice_id,
+            ci.contractor_id,
+            session_id,
             session_date,
             [service_name],
             client_code,
@@ -35,7 +55,12 @@ BEGIN
     FROM    dbo.v_invoice_details inv
     JOIN    dbo.contractor c
     ON      inv.contractor_id = c.contractor_id
-    WHERE   payment_date BETWEEN @start_date AND @end_date
+    JOIN    dbo.contractor_invoice ci
+    ON      inv.contractor_id = ci.contractor_id
+    AND     ci.period_start = @period_start
+    AND     ci.period_end = @period_end
+    AND     ci.void = 0
+    WHERE   inv.payment_date BETWEEN @period_start AND @period_end
     AND     c.invoice_frequency = @invoice_frequency;
 
     -- INSERTs all sessions that were paid previously, but did not have a signed note, and are not already
@@ -44,8 +69,11 @@ BEGIN
     -- compliant
     -- How do we exclude sessions prior to launch from this pull, while still getting sessions whose
     -- note status has changed? We define the launch date and ignore anything before it.
+    -- Launch date should be the earliest start date in our invoice details table.
     INSERT INTO dbo.contractor_invoice_details
-    SELECT  session_id,
+    SELECT  ci.contractor_invoice_id,
+            ci.contractor_id,
+            session_id,
             session_date,
             [service_name],
             client_code,
@@ -57,7 +85,12 @@ BEGIN
             service_role,
             contractor_amount
     FROM    v_invoice_details inv
-    WHERE   payment_date BETWEEN @launch_date AND DATEADD(day, -1, @start_date)
+    JOIN    dbo.contractor_invoice ci
+    ON      inv.contractor_id = ci.contractor_id
+    AND     ci.period_start = @period_start
+    AND     ci.period_end = @period_end
+    AND     ci.void = 0
+    WHERE   payment_date BETWEEN @launch_date AND DATEADD(day, -1, @period_start)
     AND     NOT EXISTS (
         SELECT  1
         FROM    dbo.contractor_invoice_details
