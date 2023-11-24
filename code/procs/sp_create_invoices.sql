@@ -37,7 +37,7 @@ PRINT('Launch Date = ' + CAST(@launch_date AS NVARCHAR));
     WHERE   inv.payment_date BETWEEN @period_start AND @period_end
     AND     c.invoice_frequency = @invoice_frequency;
 
-    -- INSERTs all sessions that were paid this period, regardless of when the session occurred.
+    -- INSERTs all sessions that were PAID in this period, regardless of when the session occurred.
     INSERT INTO dbo.contractor_invoice_details
     SELECT  ci.contractor_invoice_id,
             ci.contractor_id,
@@ -63,8 +63,8 @@ PRINT('Launch Date = ' + CAST(@launch_date AS NVARCHAR));
     WHERE   inv.payment_date BETWEEN @period_start AND @period_end
     AND     c.invoice_frequency = @invoice_frequency;
 
-    -- INSERTs all sessions that were paid previously, but did not have a signed note, and are not already
-    -- in the contractor invoice details table.
+    -- INSERTs all sessions that were PAID PRIOR to this period, but did not have a signed note at that time,
+    -- and are not already in the contractor invoice details table.
     -- If these sessions are showing in v_invoice_details, we know that their note status is now
     -- compliant
     -- How do we exclude sessions prior to launch from this pull, while still getting sessions whose
