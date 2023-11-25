@@ -31,9 +31,9 @@ SELECT      sp.payment_date,
             IIF(c.contractor_id = t.contractor_id, 'Therapist', 'Supervisor') AS service_role,
             CASE
                 WHEN c.contractor_name = sess.therapist_name THEN
-                    CAST(COALESCE(sc.service_cut,0.7)*sess.charged AS MONEY)
+                    CAST(ROUND((COALESCE(sc.service_cut,0.7)*sess.charged),2) AS MONEY)
                 ELSE
-                    CAST(COALESCE(sc.supervision_cut,0.1)*sess.charged AS MONEY)
+                    CAST(ROUND((COALESCE(sc.supervision_cut,0.1)*sess.charged),2) AS MONEY)
             END AS contractor_amount
 FROM        dbo.contractor c
 JOIN        dbo.owl_session sess
