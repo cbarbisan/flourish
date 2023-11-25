@@ -14,8 +14,6 @@ BEGIN
 
     SELECT  @launch_date = COALESCE(MIN(period_start), '20231001')
     FROM    dbo.contractor_invoice;
-
-PRINT('Launch Date = ' + CAST(@launch_date AS NVARCHAR));
     
     /*
         Notes:
