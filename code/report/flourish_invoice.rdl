@@ -1087,6 +1087,11 @@ FROM
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>FlourishInvoiceDetails</DataSetName>
+                              <SortExpressions>
+                                <SortExpression>
+                                  <Value>=Fields!session_date.Value</Value>
+                                </SortExpression>
+                              </SortExpressions>
                               <Left>1cm</Left>
                               <Height>1.4cm</Height>
                               <Width>19.16755cm</Width>
