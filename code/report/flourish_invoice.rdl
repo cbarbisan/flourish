@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1806.11</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2023-11-30T21:05:31.4398088Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2023-12-01T13:13:25.9514136Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -32,6 +32,7 @@
         <DataSourceName>FlourishDB</DataSourceName>
         <rd:DesignerState>
           <QueryDefinition xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational">
+            <AutoJoin>False</AutoJoin>
             <SelectedColumns>
               <ColumnExpression ColumnOwner="contractor_invoice_details" ColumnName="session_id" />
               <ColumnExpression ColumnOwner="contractor_invoice_details" ColumnName="session_date" />
@@ -40,7 +41,21 @@
               <ColumnExpression ColumnOwner="contractor_invoice_details" ColumnName="service_role" />
               <ColumnExpression ColumnOwner="contractor_invoice_details" ColumnName="contractor_amount" />
               <ColumnExpression ColumnOwner="contractor_invoice_details" ColumnName="contractor_invoice_id" />
+              <ColumnExpression ColumnOwner="contractor_invoice" ColumnName="contractor_invoice_id" />
+              <ColumnExpression ColumnOwner="contractor_invoice" ColumnName="invoice_date" />
+              <ColumnExpression ColumnOwner="contractor_invoice" ColumnName="contractor_name" />
+              <ColumnExpression ColumnOwner="contractor_invoice" ColumnName="void" />
+              <ColumnExpression ColumnOwner="contractor_invoice_details" ColumnName="contractor_id" />
             </SelectedColumns>
+            <Joins>
+              <Join Type="CROSS JOIN" ColumnOwner="contractor_invoice" />
+              <Join Type="INNER JOIN" ColumnOwner="contractor_invoice_details">
+                <On>
+                  <From ColumnOwner="contractor_invoice" ColumnName="contractor_invoice_id" />
+                  <To ColumnOwner="contractor_invoice_details" ColumnName="contractor_invoice_id" />
+                </On>
+              </Join>
+            </Joins>
           </QueryDefinition>
         </rd:DesignerState>
         <CommandText>SELECT
@@ -50,9 +65,16 @@
   ,contractor_invoice_details.client_code
   ,contractor_invoice_details.service_role
   ,contractor_invoice_details.contractor_amount
-  ,contractor_invoice_details.contractor_invoice_id
+  ,contractor_invoice_details.contractor_invoice_id AS [contractor_invoice_details contractor_invoice_id]
+  ,contractor_invoice.contractor_invoice_id AS [contractor_invoice contractor_invoice_id]
+  ,contractor_invoice.invoice_date
+  ,contractor_invoice.contractor_name
+  ,contractor_invoice.void
+  ,contractor_invoice_details.contractor_id
 FROM
-  contractor_invoice_details</CommandText>
+  contractor_invoice
+  INNER JOIN contractor_invoice_details
+    ON contractor_invoice.contractor_invoice_id = contractor_invoice_details.contractor_invoice_id</CommandText>
       </Query>
       <Fields>
         <Field Name="session_id">
@@ -79,9 +101,29 @@ FROM
           <rd:TypeName>System.Decimal</rd:TypeName>
           <DataField>contractor_amount</DataField>
         </Field>
-        <Field Name="contractor_invoice_id">
+        <Field Name="contractor_invoice_details_contractor_invoice_id">
           <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>contractor_invoice_id</DataField>
+          <DataField>contractor_invoice_details contractor_invoice_id</DataField>
+        </Field>
+        <Field Name="contractor_invoice_contractor_invoice_id">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>contractor_invoice contractor_invoice_id</DataField>
+        </Field>
+        <Field Name="invoice_date">
+          <rd:TypeName>System.DateTime</rd:TypeName>
+          <DataField>invoice_date</DataField>
+        </Field>
+        <Field Name="contractor_name">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>contractor_name</DataField>
+        </Field>
+        <Field Name="void">
+          <rd:TypeName>System.Boolean</rd:TypeName>
+          <DataField>void</DataField>
+        </Field>
+        <Field Name="contractor_id">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>contractor_id</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -94,12 +136,12 @@ FROM
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>8.5in</Width>
+                  <Width>7.93998in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>4cm</Height>
+                  <Height>3.77069cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -114,11 +156,12 @@ FROM
                                     <Paragraph>
                                       <TextRuns>
                                         <TextRun>
-                                          <Value>="Invoice CIV-000676"</Value>
+                                          <Label>expInvoiceNumber</Label>
+                                          <Value>="C" &amp; Format(First(Fields!contractor_id.Value),"0000") &amp; "-" &amp; Format(First(Fields!contractor_invoice_contractor_invoice_id.Value),"0000000")</Value>
                                           <Style>
                                             <FontSize>12pt</FontSize>
                                             <FontWeight>Bold</FontWeight>
-                                            <Color>White</Color>
+                                            <Format>0.00;(0.00)</Format>
                                           </Style>
                                         </TextRun>
                                         <TextRun>
@@ -126,15 +169,6 @@ FROM
                                           <Style>
                                             <FontSize>12pt</FontSize>
                                             <FontWeight>Bold</FontWeight>
-                                            <Color>White</Color>
-                                          </Style>
-                                        </TextRun>
-                                        <TextRun>
-                                          <Value>=First(Fields!contractor_invoice_id.Value)</Value>
-                                          <Style>
-                                            <FontSize>12pt</FontSize>
-                                            <FontWeight>Bold</FontWeight>
-                                            <Color>White</Color>
                                           </Style>
                                         </TextRun>
                                       </TextRuns>
@@ -143,7 +177,7 @@ FROM
                                       </Style>
                                     </Paragraph>
                                   </Paragraphs>
-                                  <Top>1.76389mm</Top>
+                                  <Top>1.5875mm</Top>
                                   <Left>5mm</Left>
                                   <Height>6mm</Height>
                                   <Width>79.99999mm</Width>
@@ -151,6 +185,7 @@ FROM
                                     <Border>
                                       <Style>None</Style>
                                     </Border>
+                                    <BackgroundColor>PeachPuff</BackgroundColor>
                                     <PaddingLeft>0mm</PaddingLeft>
                                     <PaddingRight>0mm</PaddingRight>
                                     <PaddingTop>0mm</PaddingTop>
@@ -170,7 +205,6 @@ FROM
                                             <FontSize>20pt</FontSize>
                                             <FontWeight>Bold</FontWeight>
                                             <Format>'$'#,0.00;('$'#,0.00)</Format>
-                                            <Color>White</Color>
                                           </Style>
                                         </TextRun>
                                       </TextRuns>
@@ -188,6 +222,7 @@ FROM
                                     <Border>
                                       <Style>None</Style>
                                     </Border>
+                                    <BackgroundColor>PeachPuff</BackgroundColor>
                                     <PaddingLeft>0mm</PaddingLeft>
                                     <PaddingRight>0mm</PaddingRight>
                                     <PaddingTop>0mm</PaddingTop>
@@ -202,12 +237,11 @@ FROM
                                     <Paragraph>
                                       <TextRuns>
                                         <TextRun>
-                                          <Value>="TBD"</Value>
+                                          <Value>=First(Fields!invoice_date.Value)</Value>
                                           <Style>
                                             <FontSize>12pt</FontSize>
                                             <FontWeight>Bold</FontWeight>
-                                            <Format>d MMMM yyyy</Format>
-                                            <Color>White</Color>
+                                            <Format>MMMM d, yyyy</Format>
                                           </Style>
                                         </TextRun>
                                       </TextRuns>
@@ -216,8 +250,8 @@ FROM
                                       </Style>
                                     </Paragraph>
                                   </Paragraphs>
-                                  <Top>7.76389mm</Top>
-                                  <Left>5mm</Left>
+                                  <Top>7.55222mm</Top>
+                                  <Left>4.78833mm</Left>
                                   <Height>6mm</Height>
                                   <Width>79.99999mm</Width>
                                   <ZIndex>2</ZIndex>
@@ -225,6 +259,7 @@ FROM
                                     <Border>
                                       <Style>None</Style>
                                     </Border>
+                                    <BackgroundColor>PeachPuff</BackgroundColor>
                                     <PaddingLeft>0mm</PaddingLeft>
                                     <PaddingRight>0mm</PaddingRight>
                                     <PaddingTop>0mm</PaddingTop>
@@ -242,7 +277,6 @@ FROM
                                           <Value>Payment Terms: Net 15 days</Value>
                                           <Style>
                                             <FontSize>8pt</FontSize>
-                                            <Color>White</Color>
                                           </Style>
                                         </TextRun>
                                       </TextRuns>
@@ -251,8 +285,8 @@ FROM
                                       </Style>
                                     </Paragraph>
                                   </Paragraphs>
-                                  <Top>1.47639cm</Top>
-                                  <Left>0.5cm</Left>
+                                  <Top>1.45522cm</Top>
+                                  <Left>0.47883cm</Left>
                                   <Height>0.5cm</Height>
                                   <Width>8cm</Width>
                                   <ZIndex>3</ZIndex>
@@ -260,6 +294,7 @@ FROM
                                     <Border>
                                       <Style>None</Style>
                                     </Border>
+                                    <BackgroundColor>PeachPuff</BackgroundColor>
                                     <PaddingLeft>0mm</PaddingLeft>
                                     <PaddingRight>0mm</PaddingRight>
                                     <PaddingTop>0mm</PaddingTop>
@@ -269,7 +304,7 @@ FROM
                               </ReportItems>
                               <KeepTogether>true</KeepTogether>
                               <Top>0mm</Top>
-                              <Left>112.53056mm</Left>
+                              <Left>114.20586mm</Left>
                               <Height>37.35417mm</Height>
                               <Width>87.46954mm</Width>
                               <Style>
@@ -321,11 +356,42 @@ FROM
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>0.09335in</Top>
-                              <Left>0.3175in</Left>
-                              <Height>0.99167in</Height>
+                              <Top>0.60724in</Top>
+                              <Left>0.3937in</Left>
+                              <Height>0.7875in</Height>
                               <Width>2.0447in</Width>
                               <ZIndex>1</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="contractor_name">
+                              <rd:DefaultName>contractor_name</rd:DefaultName>
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Label>expInvoiceFrom</Label>
+                                      <Value>="Invoice from: " &amp; First(Fields!contractor_name.Value)</Value>
+                                      <Style />
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>0.11389in</Top>
+                              <Left>0.3937in</Left>
+                              <Height>0.25in</Height>
+                              <Width>3.66137in</Width>
+                              <ZIndex>2</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -349,7 +415,7 @@ FROM
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>2cm</Height>
+                  <Height>2.44282cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -742,7 +808,6 @@ FROM
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <rd:Selected>true</rd:Selected>
                                           <Textbox Name="session_date">
                                             <rd:DefaultName>session_date</rd:DefaultName>
                                             <CanGrow>true</CanGrow>
@@ -1032,25 +1097,6 @@ FROM
                                 <FontSize>8pt</FontSize>
                               </Style>
                             </Tablix>
-                          </ReportItems>
-                          <KeepTogether>true</KeepTogether>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                          </Style>
-                        </Rectangle>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>2.91596cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Rectangle Name="Rectangle19">
-                          <ReportItems>
                             <Tablix Name="Tablix3">
                               <TablixBody>
                                 <TablixColumns>
@@ -1250,10 +1296,13 @@ FROM
                                   <TablixMember />
                                 </TablixMembers>
                               </TablixRowHierarchy>
+                              <KeepTogether>true</KeepTogether>
                               <DataSetName>SalesInvoiceDS</DataSetName>
-                              <Left>1.00001cm</Left>
+                              <Top>1.47056cm</Top>
+                              <Left>1cm</Left>
                               <Height>0.75001cm</Height>
                               <Width>19.16754cm</Width>
+                              <ZIndex>1</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -1262,85 +1311,12 @@ FROM
                               </Style>
                             </Tablix>
                           </ReportItems>
-                          <KeepTogether>true</KeepTogether>
                           <Style>
                             <Border>
                               <Style>None</Style>
                             </Border>
                           </Style>
                         </Rectangle>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>1cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox29">
-                          <rd:DefaultName>Textbox29</rd:DefaultName>
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontFamily>Arial</FontFamily>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>3.67639cm</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Textbox86">
-                          <rd:DefaultName>Textbox86</rd:DefaultName>
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontFamily>Arial</FontFamily>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <Border>
-                              <Style>None</Style>
-                            </Border>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
                       </CellContents>
                     </TablixCell>
                   </TablixCells>
@@ -1354,18 +1330,33 @@ FROM
             </TablixColumnHierarchy>
             <TablixRowHierarchy>
               <TablixMembers>
-                <TablixMember />
-                <TablixMember />
-                <TablixMember />
-                <TablixMember />
-                <TablixMember />
+                <TablixMember>
+                  <Group Name="contractor_id">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!contractor_id.Value</GroupExpression>
+                    </GroupExpressions>
+                    <PageBreak>
+                      <BreakLocation>Between</BreakLocation>
+                    </PageBreak>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!contractor_id.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixMembers>
+                    <TablixMember />
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
+            <OmitBorderOnPageBreak>true</OmitBorderOnPageBreak>
             <DataSetName>FlourishInvoiceDetails</DataSetName>
             <Top>0mm</Top>
             <Left>0.0001mm</Left>
-            <Height>13.59235cm</Height>
-            <Width>8.5in</Width>
+            <Height>6.21351cm</Height>
+            <Width>7.93998in</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1373,7 +1364,7 @@ FROM
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>5.54817in</Height>
+        <Height>9.5in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -1382,81 +1373,44 @@ FROM
       </Body>
       <Width>8.5in</Width>
       <Page>
-        <PageHeader>
-          <Height>1.34082in</Height>
-          <PrintOnFirstPage>true</PrintOnFirstPage>
-          <ReportItems>
-            <Rectangle Name="Rectangle2">
-              <KeepTogether>true</KeepTogether>
-              <Top>0.14111in</Top>
-              <Left>0.30083in</Left>
-              <Height>1.08385in</Height>
-              <Width>2.06137in</Width>
-              <Style>
-                <Border>
-                  <Style>None</Style>
-                </Border>
-              </Style>
-            </Rectangle>
-          </ReportItems>
-          <Style>
-            <Border>
-              <Style>None</Style>
-            </Border>
-          </Style>
-        </PageHeader>
         <PageFooter>
           <Height>0.66481in</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Rectangle Name="Rectangle1">
-              <ReportItems>
-                <Textbox Name="Textbox20">
-                  <rd:DefaultName>Textbox1</rd:DefaultName>
-                  <CanGrow>true</CanGrow>
-                  <KeepTogether>true</KeepTogether>
-                  <Paragraphs>
-                    <Paragraph>
-                      <TextRuns>
-                        <TextRun>
-                          <Value>="Page" &amp; Space(1) &amp; CStr(Globals!PageNumber) &amp; Space(1) &amp; "of" &amp; Space(1) &amp; CStr(Globals!TotalPages)</Value>
-                          <Style>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                        </TextRun>
-                      </TextRuns>
-                      <Style>
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Paragraph>
-                  </Paragraphs>
-                  <Top>1.01222cm</Top>
-                  <Left>15cm</Left>
-                  <Height>0.5cm</Height>
-                  <Width>5cm</Width>
-                  <Style>
-                    <Border>
-                      <Style>None</Style>
-                    </Border>
-                    <PaddingLeft>0mm</PaddingLeft>
-                    <PaddingRight>0mm</PaddingRight>
-                    <PaddingTop>0mm</PaddingTop>
-                    <PaddingBottom>0mm</PaddingBottom>
-                  </Style>
-                </Textbox>
-              </ReportItems>
+            <Textbox Name="Textbox20">
+              <rd:DefaultName>Textbox1</rd:DefaultName>
+              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
-              <Top>0.02778in</Top>
-              <Left>0.06597in</Left>
-              <Height>16.18049mm</Height>
-              <Width>209.99999mm</Width>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>="Page" &amp; Space(1) &amp; CStr(Globals!PageNumber) &amp; Space(1) &amp; "of" &amp; Space(1) &amp; CStr(Globals!TotalPages)</Value>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.59431cm</Top>
+              <Left>15.34626cm</Left>
+              <Height>0.5cm</Height>
+              <Width>5cm</Width>
               <Style>
                 <Border>
                   <Style>None</Style>
                 </Border>
+                <PaddingLeft>0mm</PaddingLeft>
+                <PaddingRight>0mm</PaddingRight>
+                <PaddingTop>0mm</PaddingTop>
+                <PaddingBottom>0mm</PaddingBottom>
               </Style>
-            </Rectangle>
+            </Textbox>
           </ReportItems>
           <Style>
             <Border>
@@ -1468,8 +1422,8 @@ FROM
         <InteractiveWidth>21cm</InteractiveWidth>
         <LeftMargin>0in</LeftMargin>
         <RightMargin>0in</RightMargin>
-        <TopMargin>0in</TopMargin>
-        <BottomMargin>0in</BottomMargin>
+        <TopMargin>0.75in</TopMargin>
+        <BottomMargin>0.75in</BottomMargin>
         <Style />
       </Page>
     </ReportSection>
