@@ -49,5 +49,5 @@ ON          t.contractor_id = sc.therapist_id
 AND         sess.service_name = sc.service_name
 AND         ISNULL(s.contractor_id,0) = ISNULL(sc.supervisor_id,0)
 WHERE       NOT EXISTS (SELECT 1 FROM dbo.contractor_invoice_details WHERE session_id = sess.session_id and contractor_id = c.contractor_id)
-AND         (sess.note_status IN ('Signed Note', 'N/A') OR c.contractor_id = s.contractor_id)
+--AND         (sess.note_status IN ('Signed Note', 'N/A') OR c.contractor_id = s.contractor_id)
 GO
