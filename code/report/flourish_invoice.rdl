@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1806.11</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2023-12-01T21:10:18.8289002Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2024-01-02T16:04:18.0768188Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -87,6 +87,8 @@
   ,contractor_invoice.contractor_name
   ,contractor_invoice.void
   ,contractor_invoice_details.contractor_id
+  ,contractor_invoice_details.duration
+  ,contractor_invoice_details.charged
 FROM
   contractor_invoice
   INNER JOIN contractor_invoice_details
@@ -144,6 +146,14 @@ WHERE
           <rd:TypeName>System.Int32</rd:TypeName>
           <DataField>contractor_id</DataField>
         </Field>
+        <Field Name="duration">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>duration</DataField>
+        </Field>
+        <Field Name="charged">
+          <rd:TypeName>System.Decimal</rd:TypeName>
+          <DataField>charged</DataField>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FlourishContractors">
@@ -183,7 +193,7 @@ FROM
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7.93998in</Width>
+                  <Width>8.33025in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -472,10 +482,10 @@ FROM
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>1.83246cm</Width>
+                                    <Width>1.11983cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>5.56026cm</Width>
+                                    <Width>5.00993cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
                                     <Width>3.54121cm</Width>
@@ -484,10 +494,16 @@ FROM
                                     <Width>2.74083cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>3.19279cm</Width>
+                                    <Width>1.10787cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.3cm</Width>
+                                    <Width>1.79917cm</Width>
+                                  </TablixColumn>
+                                  <TablixColumn>
+                                    <Width>2.27188cm</Width>
+                                  </TablixColumn>
+                                  <TablixColumn>
+                                    <Width>1.57683cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -504,7 +520,7 @@ FROM
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>SESSION #</Value>
+                                                    <Value>#</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -690,6 +706,86 @@ FROM
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
+                                          <Textbox Name="Textbox1">
+                                            <rd:DefaultName>Textbox1</rd:DefaultName>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>DURATION</Value>
+                                                    <Style>
+                                                      <FontSize>8pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <Style>
+                                              <Border>
+                                                <Color>PeachPuff</Color>
+                                                <Style>None</Style>
+                                                <Width>0.5mm</Width>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Style>Solid</Style>
+                                              </BottomBorder>
+                                              <VerticalAlign>Top</VerticalAlign>
+                                              <PaddingLeft>1mm</PaddingLeft>
+                                              <PaddingRight>1mm</PaddingRight>
+                                              <PaddingTop>1mm</PaddingTop>
+                                              <PaddingBottom>1mm</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox3">
+                                            <rd:DefaultName>Textbox3</rd:DefaultName>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>CHARGED</Value>
+                                                    <Style>
+                                                      <FontSize>8pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <Style>
+                                              <Border>
+                                                <Color>PeachPuff</Color>
+                                                <Style>None</Style>
+                                                <Width>0.5mm</Width>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Style>Solid</Style>
+                                              </BottomBorder>
+                                              <VerticalAlign>Top</VerticalAlign>
+                                              <PaddingLeft>1mm</PaddingLeft>
+                                              <PaddingRight>1mm</PaddingRight>
+                                              <PaddingTop>1mm</PaddingTop>
+                                              <PaddingBottom>1mm</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
                                           <Textbox Name="Textbox5">
                                             <rd:DefaultName>Textbox5</rd:DefaultName>
                                             <CanGrow>true</CanGrow>
@@ -749,7 +845,9 @@ FROM
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
-                                                <Style />
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
                                               </Paragraph>
                                             </Paragraphs>
                                             <CustomProperties>
@@ -989,7 +1087,7 @@ FROM
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!service_role.Value</Value>
+                                                    <Value>=Left(Fields!service_role.Value,1)</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -1022,6 +1120,87 @@ FROM
                                                 <Value>DiscAmount</Value>
                                               </CustomProperty>
                                             </CustomProperties>
+                                            <Style>
+                                              <Border>
+                                                <Color>PeachPuff</Color>
+                                                <Style>None</Style>
+                                                <Width>0.25mm</Width>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Style>None</Style>
+                                              </BottomBorder>
+                                              <BackgroundColor>=IIf(RowNumber(Nothing) MOD 2 = 0, "White", "PeachPuff")</BackgroundColor>
+                                              <VerticalAlign>Top</VerticalAlign>
+                                              <PaddingLeft>1mm</PaddingLeft>
+                                              <PaddingRight>1mm</PaddingRight>
+                                              <PaddingTop>1.75mm</PaddingTop>
+                                              <PaddingBottom>1.5mm</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="duration">
+                                            <rd:DefaultName>duration</rd:DefaultName>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!duration.Value</Value>
+                                                    <Style>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <Style>
+                                              <Border>
+                                                <Color>PeachPuff</Color>
+                                                <Style>None</Style>
+                                                <Width>0.25mm</Width>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Style>None</Style>
+                                              </BottomBorder>
+                                              <BackgroundColor>=IIf(RowNumber(Nothing) MOD 2 = 0, "White", "PeachPuff")</BackgroundColor>
+                                              <VerticalAlign>Top</VerticalAlign>
+                                              <PaddingLeft>1mm</PaddingLeft>
+                                              <PaddingRight>1mm</PaddingRight>
+                                              <PaddingTop>1.75mm</PaddingTop>
+                                              <PaddingBottom>1.5mm</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="charged">
+                                            <rd:DefaultName>charged</rd:DefaultName>
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!charged.Value</Value>
+                                                    <Style>
+                                                      <FontSize>8pt</FontSize>
+                                                      <Format>'$'#,0.00;('$'#,0.00)</Format>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
                                             <Style>
                                               <Border>
                                                 <Color>PeachPuff</Color>
@@ -1117,6 +1296,8 @@ FROM
                                   <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
+                                  <TablixMember />
+                                  <TablixMember />
                                 </TablixMembers>
                               </TablixColumnHierarchy>
                               <TablixRowHierarchy>
@@ -1141,7 +1322,7 @@ FROM
                               </SortExpressions>
                               <Left>1cm</Left>
                               <Height>1.4cm</Height>
-                              <Width>19.16755cm</Width>
+                              <Width>19.16754cm</Width>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -1405,7 +1586,7 @@ FROM
             <Top>0mm</Top>
             <Left>0.0001mm</Left>
             <Height>6.21351cm</Height>
-            <Width>7.93998in</Width>
+            <Width>8.33025in</Width>
             <Style>
               <Border>
                 <Style>None</Style>

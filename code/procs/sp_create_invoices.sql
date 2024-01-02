@@ -12,7 +12,7 @@ BEGIN
 
     DECLARE @launch_date DATE = NULL;
 
-    SELECT  @launch_date = COALESCE(MIN(period_start), '20231001')
+    SELECT  @launch_date = COALESCE(MIN(period_start), '20231101')
     FROM    dbo.contractor_invoice;
     
     /*
