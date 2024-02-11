@@ -1,15 +1,10 @@
 -- Generates the invoice and invoice detail records for each contractor whose
 -- invoice frequency matches the frequency passed into the proc.
--- Invoice will include eligible sessions for the date range specified.
-
--- TODO: If there are 2 lines of invoice details for a session, 1 for the
--- therapist and 1 for the supervisor, how/where does the amount to clinic
--- value get captured? On the therapist's invoice? On the supervisor's
--- invoice? Split between both? It's relevant to this view if I'm going to
--- calculate the amount to clinic here.
 --
--- For a contractor who is also a supervisor, we show a number EITHER in the
--- contractor amount, or in the supervisor amount, but not both.
+-- Invoice will include eligible sessions for the date range specified,
+-- along with sessions that were manually deemed eligible by inclusion in
+-- the non_invoiced_session table.
+--
 -- We ONLY show amount to clinic when the contractor was the therapist for
 -- the session. If we show it under both, then we risk double-counting the
 -- amount to clinic, because it will show up on an invoice twice, once
@@ -23,16 +18,8 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    DECLARE @launch_date DATE = NULL;
+    DECLARE @launch_date DATE = '20231101';
 
-    SELECT  @launch_date = COALESCE(MIN(invoice_start), '20231101')
-    FROM    dbo.contractor_invoice;
-    
-    /*
-        Notes:
-            1. Complete all 3 INSERTs as a single transaction
-    */
-    
     -- A session is eligible to be invoiced for by the contractor IF:
     --      1. The note is completed
     --      2. A payment has been received for the session
@@ -56,40 +43,31 @@ BEGIN
             c.contractor_name,
             c.invoice_frequency,
             sess.*,
-            IIF (c.contractor_id = sess.therapist_id, 'Therapist', 'Supervisor') AS contractor_role
+            IIF (c.contractor_id = sess.therapist_id, 'Therapist', 'Supervisor') AS contractor_role,
+            IIF (c.contractor_id = sess.therapist_id, sess.therapist_amount, sess.supervisor_amount) AS contractor_amount,
+            IIF (c.contractor_id = sess.therapist_id, sess.charged - (sess.therapist_amount + sess.supervisor_amount), NULL) AS amount_to_clinic
     INTO    #invoice_details
     FROM    contractor c
     JOIN    v_session_details sess
     ON      (c.contractor_id = sess.therapist_id OR c.contractor_id = sess.supervisor_id)
     WHERE   sess.note_status IN ('Signed Note', 'N/A')
     AND     c.invoice_frequency = @invoice_frequency
-    AND     sess.payment_date BETWEEN @launch_date AND @invoice_end
     AND     NOT EXISTS (SELECT 1 FROM contractor_invoice_details WHERE session_id = sess.session_id AND contractor_id = c.contractor_id)
+    AND     (
+                (sess.payment_date BETWEEN @launch_date AND @invoice_end)
+                OR
+                (
+                        sess.payment_date < @launch_date
+                        AND
+                        EXISTS (SELECT 1 FROM non_invoiced_session where session_id = sess.session_id AND contractor_id = c.contractor_id)
+                )
+    );
     
-    UNION
-
-    -- This includes the manually specified sessions in the invoice details temp table
-    -- Note the payment date filter is different, and the sessions selected are limited
-    -- by the data in the non_invoiced_session table. Otherwise, the criteria are the
-    -- same as above (filters on note status, invoice frequency and existing invoice
-    -- details)
-    SELECT  c.contractor_id,
-            c.contractor_name,
-            c.invoice_frequency,
-            sess.*,
-            IIF (c.contractor_id = sess.therapist_id, 'Therapist', 'Supervisor') AS contractor_role
-    FROM    contractor c
-    JOIN    v_session_details sess
-    ON      (c.contractor_id = sess.therapist_id OR c.contractor_id = sess.supervisor_id)
-    JOIN    non_invoiced_session nis
-    ON      c.contractor_id = nis.contractor_id
-    AND     sess.session_id = nis.session_id
-    WHERE   sess.note_status IN ('Signed Note', 'N/A')
-    AND     c.invoice_frequency = @invoice_frequency
-    AND     sess.payment_date < @launch_date
-    AND     NOT EXISTS (SELECT 1 FROM contractor_invoice_details WHERE session_id = sess.session_id AND contractor_id = c.contractor_id)
-    ;
-
+    /*
+        Notes:
+            1. Complete both INSERTs as a single transaction
+    */
+    
     -- Use the eligible session details to determine which invoices need to be generated
     INSERT INTO dbo.contractor_invoice
     SELECT  DISTINCT
@@ -126,15 +104,12 @@ BEGIN
             inv.charged,
             inv.paid,
             inv.contractor_role,
-            IIF(sess.contractor_role = 'Therapist', sess.therapist_amount, sess.supervisor_amount) AS contractor_amount
+            inv.contractor_amount
     FROM    #invoice_details inv
     JOIN    dbo.contractor_invoice ci
     ON      inv.contractor_id = ci.contractor_id
     AND     ci.invoice_start = @invoice_start
     AND     ci.invoice_end = @invoice_end
-    AND     ci.void = 0
-    WHERE   inv.payment_date BETWEEN @invoice_start AND @invoice_end
-    AND     inv.invoice_frequency = @invoice_frequency
-    AND     inv.note_status IN ('Signed Note', 'N/A');
+    AND     ci.void = 0;
 
 END
