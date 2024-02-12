@@ -47,19 +47,19 @@ BEGIN
             IIF (c.contractor_id = sess.therapist_id, sess.therapist_amount, sess.supervisor_amount) AS contractor_amount,
             IIF (c.contractor_id = sess.therapist_id, sess.charged - (sess.therapist_amount + sess.supervisor_amount), NULL) AS amount_to_clinic
     INTO    #invoice_details
-    FROM    contractor c
-    JOIN    v_session_details sess
+    FROM    dbo.contractor c
+    JOIN    dbo.v_session_details sess
     ON      (c.contractor_id = sess.therapist_id OR c.contractor_id = sess.supervisor_id)
     WHERE   sess.note_status IN ('Signed Note', 'N/A')
     AND     c.invoice_frequency = @invoice_frequency
-    AND     NOT EXISTS (SELECT 1 FROM contractor_invoice_details WHERE session_id = sess.session_id AND contractor_id = c.contractor_id)
+    AND     NOT EXISTS (SELECT 1 FROM dbo.v_invoice_details WHERE session_id = sess.session_id AND contractor_id = c.contractor_id AND void = 0)
     AND     (
                 (sess.payment_date BETWEEN @launch_date AND @invoice_end)
                 OR
                 (
                         sess.payment_date < @launch_date
                         AND
-                        EXISTS (SELECT 1 FROM non_invoiced_session where session_id = sess.session_id AND contractor_id = c.contractor_id)
+                        EXISTS (SELECT 1 FROM dbo.non_invoiced_session where session_id = sess.session_id AND contractor_id = c.contractor_id)
                 )
     );
     
@@ -77,7 +77,7 @@ BEGIN
             inv.contractor_id,
             inv.contractor_name,
             0 AS void
-    FROM    dbo.#invoice_details inv;
+    FROM    #invoice_details inv;
 
     -- Once we get here, all of the invoice details in the temp table can just
     -- be inserted into the contractor_invoice_details table in 1 step.
@@ -105,11 +105,6 @@ BEGIN
             inv.paid,
             inv.contractor_role,
             inv.contractor_amount
-    FROM    #invoice_details inv
-    JOIN    dbo.contractor_invoice ci
-    ON      inv.contractor_id = ci.contractor_id
-    AND     ci.invoice_start = @invoice_start
-    AND     ci.invoice_end = @invoice_end
-    AND     ci.void = 0;
+    FROM    #invoice_details inv;
 
 END
