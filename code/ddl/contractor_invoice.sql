@@ -13,3 +13,7 @@ CREATE TABLE [dbo].[contractor_invoice] (
     CONSTRAINT [PK_contractor_invoice] PRIMARY KEY CLUSTERED ([contractor_invoice_id] ASC)
 );
 GO
+
+CREATE UNIQUE INDEX IDX_NonVoidInvoice
+    ON dbo.contractor_invoice (contractor_id, invoice_start, invoice_end)
+    WHERE void = 0;

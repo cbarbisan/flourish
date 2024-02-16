@@ -78,10 +78,10 @@ BEGIN
             CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Eastern Standard Time' AS DATE) AS invoice_date,
             @invoice_start,
             @invoice_end,
-            inv.contractor_id,
-            inv.contractor_name,
+            contractor_id,
+            contractor_name,
             0 AS void
-    FROM    #invoice_details inv;
+    FROM    #invoice_details;
 
     -- Once we get here, all of the invoice details in the temp table can just
     -- be inserted into the contractor_invoice_details table in 1 step.
@@ -89,18 +89,23 @@ BEGIN
 
     INSERT INTO dbo.contractor_invoice_details
     SELECT  ci.contractor_invoice_id,
-            ci.contractor_id,
-            inv.session_id,
-            inv.session_date,
-            inv.[service_name],
-            inv.client_code,
-            inv.duration,
-            inv.attendance,
-            inv.fee,
-            inv.charged,
-            inv.paid,
-            inv.contractor_role,
-            inv.contractor_amount
-    FROM    #invoice_details inv;
+            d.contractor_id,
+            d.session_id,
+            d.session_date,
+            d.[service_name],
+            d.client_code,
+            d.duration,
+            d.attendance,
+            d.fee,
+            d.charged,
+            d.paid,
+            d.contractor_role,
+            d.contractor_amount
+    FROM    #invoice_details d
+    JOIN    contractor_invoice ci
+    ON      d.contractor_id = ci.contractor_id
+    AND     ci.invoice_start = @invoice_start
+    AND     ci.invoice_end = @invoice_end
+    AND     ci.void = 0;
 
 END
