@@ -2,13 +2,13 @@
 -- invoice frequency matches the frequency passed into the proc.
 --
 -- Invoice will include eligible sessions for the date range specified,
--- along with sessions that were manually deemed eligible by inclusion in
--- the non_invoiced_session table.
+-- along with sessions that were manually deemed eligible through inclusion
+-- in the non_invoiced_session table.
 --
 -- We ONLY show amount to clinic when the contractor was the therapist for
 -- the session. If we show it under both, then we risk double-counting the
--- amount to clinic, because it will show up on an invoice twice, once
--- for the therapist and once for the supervisor.
+-- amount to clinic, because it could  show up on an invoice twice, once
+-- for the session's therapist and once for the session's supervisor.
 CREATE OR ALTER PROCEDURE dbo.sp_create_invoices
     @invoice_start DATE,
     @invoice_end DATE,
@@ -18,7 +18,11 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    DECLARE @launch_date DATE = '20231101';
+    DECLARE @launch_date DATE;
+
+    SELECT @launch_date = launch_date
+    FROM app_launch
+    WHERE invoice_frequency = @invoice_frequency;
 
     -- A session is eligible to be invoiced for by the contractor IF:
     --      1. The note is completed
@@ -35,9 +39,6 @@ BEGIN
     -- When would we manually specify a session?:
     --      1. It was paid by the client before the launch date, but not invoiced by the contractor due to note status
     --      2. It was paid by the client before the launch date, but not invoiced by the contractor unintentionally    
-    
-    -- TODO: Should launch date be different depending on invoice frequency? I think so. Perhaps a config table to
-    -- store the different launch dates.
     
     SELECT  c.contractor_id,
             c.contractor_name,
@@ -64,8 +65,11 @@ BEGIN
     );
     
     /*
-        Notes:
-            1. Complete both INSERTs as a single transaction
+        TODO: Complete both INSERTs as a single transaction. 
+        Should the population of the temp table be part of the transaction?
+                No, just fail out the proc if the temp table load fails,
+                so that the invoice and invoice detail records don't get
+                created.
     */
     
     -- Use the eligible session details to determine which invoices need to be generated
@@ -83,14 +87,6 @@ BEGIN
     -- be inserted into the contractor_invoice_details table in 1 step.
     -- There shouldn't be any need for a second INSERT query.
 
-    -- INSERTs all sessions that were PAID in this period, regardless of when the session occurred.
-    -- However the session must have a signed note and not have been invoiced before.
-    -- Joining the invoice record ensures that we are only inserting the invoice details
-    -- we need for the invoices we created above.
-    --
-    -- TODO: A supervised session should generate 2 records of invoice details, not just 1.
-    --       1 record for the therapist's invoice and 1 record for the supervisor's invoice.
-    --       Will need logic here to fan those session records into 2 invoice detail records.
     INSERT INTO dbo.contractor_invoice_details
     SELECT  ci.contractor_invoice_id,
             ci.contractor_id,
