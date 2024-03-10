@@ -7,7 +7,7 @@
 --
 -- We ONLY show amount to clinic when the contractor was the therapist for
 -- the session. If we show it under both, then we risk double-counting the
--- amount to clinic, because it could  show up on an invoice twice, once
+-- amount to clinic, because it could show up on an invoice twice, once
 -- for the session's therapist and once for the session's supervisor.
 CREATE OR ALTER PROCEDURE dbo.sp_create_invoices
     @invoice_start DATE,
@@ -34,7 +34,7 @@ BEGIN
     -- Let's start by gathering the details of eligible sessions into
     -- a temp table
     
-    -- Include in the invoice details, manually specified sessions that occurred before launch date but are not in our 
+    -- Add to the invoice details, manually specified sessions that occurred before launch date but are not in our 
     -- invoice details table
     -- When would we manually specify a session?:
     --      1. It was paid by the client before the launch date, but not invoiced by the contractor due to note status
