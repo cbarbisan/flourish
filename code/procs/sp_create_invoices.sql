@@ -64,48 +64,64 @@ BEGIN
                 )
     );
     
-    /*
-        TODO: Complete both INSERTs as a single transaction. 
-        Should the population of the temp table be part of the transaction?
-                No, just fail out the proc if the temp table load fails,
-                so that the invoice and invoice detail records don't get
-                created.
-    */
-    
-    -- Use the eligible session details to determine which invoices need to be generated
-    INSERT INTO dbo.contractor_invoice
-    SELECT  DISTINCT
-            CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Eastern Standard Time' AS DATE) AS invoice_date,
-            @invoice_start,
-            @invoice_end,
-            contractor_id,
-            contractor_name,
-            0 AS void
-    FROM    #invoice_details;
+    -- Either the invoice record and all of the invoice detail records should be created, or
+    -- nothing should be created. Use a transaction to make sure it's either/or
+    BEGIN TRANSACTION
 
-    -- Once we get here, all of the invoice details in the temp table can just
-    -- be inserted into the contractor_invoice_details table in 1 step.
-    -- There shouldn't be any need for a second INSERT query.
+        BEGIN TRY
+        
+                -- Use the eligible session details to determine which invoices need to be generated
+                INSERT INTO dbo.contractor_invoice
+                SELECT  DISTINCT
+                        CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Eastern Standard Time' AS DATE) AS invoice_date,
+                        @invoice_start,
+                        @invoice_end,
+                        contractor_id,
+                        contractor_name,
+                        0 AS void
+                FROM    #invoice_details;
 
-    INSERT INTO dbo.contractor_invoice_details
-    SELECT  ci.contractor_invoice_id,
-            d.contractor_id,
-            d.session_id,
-            d.session_date,
-            d.[service_name],
-            d.client_code,
-            d.duration,
-            d.attendance,
-            d.fee,
-            d.charged,
-            d.paid,
-            d.contractor_role,
-            d.contractor_amount
-    FROM    #invoice_details d
-    JOIN    contractor_invoice ci
-    ON      d.contractor_id = ci.contractor_id
-    AND     ci.invoice_start = @invoice_start
-    AND     ci.invoice_end = @invoice_end
-    AND     ci.void = 0;
+                -- Once we get here, all of the invoice details in the temp table can just
+                -- be inserted into the contractor_invoice_details table in 1 step.
+                -- There shouldn't be any need for a second INSERT query.
+
+                INSERT INTO dbo.contractor_invoice_details
+                SELECT  ci.contractor_invoice_id,
+                        d.contractor_id,
+                        d.session_id,
+                        d.session_date,
+                        d.[service_name],
+                        d.client_code,
+                        d.duration,
+                        d.attendance,
+                        d.fee,
+                        d.charged,
+                        d.paid,
+                        d.contractor_role,
+                        d.contractor_amount
+                FROM    #invoice_details d
+                JOIN    contractor_invoice ci
+                ON      d.contractor_id = ci.contractor_id
+                AND     ci.invoice_start = @invoice_start
+                AND     ci.invoice_end = @invoice_end
+                AND     ci.void = 0;
+
+        END TRY
+        BEGIN CATCH
+
+                SELECT   ERROR_NUMBER() AS ErrorNumber  
+                        ,ERROR_SEVERITY() AS ErrorSeverity  
+                        ,ERROR_STATE() AS ErrorState  
+                        ,ERROR_PROCEDURE() AS ErrorProcedure  
+                        ,ERROR_LINE() AS ErrorLine  
+                        ,ERROR_MESSAGE() AS ErrorMessage;  
+  
+                IF @@TRANCOUNT > 0
+                        ROLLBACK TRANSACTION;
+
+        END CATCH
+
+        IF @@TRANCOUNT > 0
+                COMMIT TRANSACTION;
 
 END
