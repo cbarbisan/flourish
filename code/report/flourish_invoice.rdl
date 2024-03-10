@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1806.11</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2024-03-10T17:21:00.0100526Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2024-03-10T18:56:45.7118311Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -31,11 +31,8 @@
       <Query>
         <DataSourceName>FlourishDB</DataSourceName>
         <QueryParameters>
-          <QueryParameter Name="@contractor_id">
-            <Value>=Parameters!contractor_id.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@invoice_date">
-            <Value>=Parameters!invoice_date.Value</Value>
+          <QueryParameter Name="@invoice_period">
+            <Value>=Parameters!invoice_period.Value</Value>
           </QueryParameter>
         </QueryParameters>
         <rd:DesignerState>
@@ -88,11 +85,11 @@
   ,contractor_id
   ,duration
   ,charged
+  ,CONCAT(invoice_start, ' - ', invoice_end) AS invoice_period
 FROM
   v_invoice_details
 WHERE
-  contractor_id = @contractor_id
-  AND invoice_date = @invoice_date</CommandText>
+  CONCAT(invoice_start, ' - ', invoice_end) = @invoice_period</CommandText>
       </Query>
       <Fields>
         <Field Name="session_id">
@@ -147,33 +144,22 @@ WHERE
           <rd:TypeName>System.Decimal</rd:TypeName>
           <DataField>charged</DataField>
         </Field>
+        <Field Name="invoice_period">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>invoice_period</DataField>
+        </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="FlourishContractors">
+    <DataSet Name="InvoicePeriods">
       <Query>
         <DataSourceName>FlourishDB</DataSourceName>
-        <rd:DesignerState>
-          <QueryDefinition xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational">
-            <SelectedColumns>
-              <ColumnExpression ColumnOwner="contractor" ColumnName="contractor_id" />
-              <ColumnExpression ColumnOwner="contractor" ColumnName="contractor_name" />
-            </SelectedColumns>
-          </QueryDefinition>
-        </rd:DesignerState>
-        <CommandText>SELECT
-  contractor.contractor_id
-  ,contractor.contractor_name
-FROM
-  contractor</CommandText>
+        <CommandText>SELECT DISTINCT CONCAT(invoice_start, ' - ', invoice_end) AS invoice_period
+FROM v_invoice_details</CommandText>
       </Query>
       <Fields>
-        <Field Name="contractor_id">
-          <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>contractor_id</DataField>
-        </Field>
-        <Field Name="contractor_name">
+        <Field Name="invoice_period">
           <rd:TypeName>System.String</rd:TypeName>
-          <DataField>contractor_name</DataField>
+          <DataField>invoice_period</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -1559,7 +1545,7 @@ FROM
                 <TablixMember>
                   <Group Name="contractor_invoice_id">
                     <GroupExpressions>
-                      <GroupExpression>contractor_invoice_id</GroupExpression>
+                      <GroupExpression>=Fields!contractor_invoice_id.Value</GroupExpression>
                     </GroupExpressions>
                   </Group>
                   <SortExpressions>
@@ -1652,33 +1638,16 @@ FROM
     </ReportSection>
   </ReportSections>
   <ReportParameters>
-    <ReportParameter Name="contractor_id">
-      <DataType>Integer</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Contractor Name</Prompt>
+    <ReportParameter Name="invoice_period">
+      <DataType>String</DataType>
+      <Prompt>Invoice Period</Prompt>
       <ValidValues>
         <DataSetReference>
-          <DataSetName>FlourishContractors</DataSetName>
-          <ValueField>contractor_id</ValueField>
-          <LabelField>contractor_name</LabelField>
+          <DataSetName>InvoicePeriods</DataSetName>
+          <ValueField>invoice_period</ValueField>
+          <LabelField>invoice_period</LabelField>
         </DataSetReference>
       </ValidValues>
-      <cl:ComponentMetadata>
-        <cl:HideUpdateNotifications>true</cl:HideUpdateNotifications>
-      </cl:ComponentMetadata>
-    </ReportParameter>
-    <ReportParameter Name="invoice_date">
-      <DataType>DateTime</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>=Today()</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>invoice date</Prompt>
       <cl:ComponentMetadata>
         <cl:HideUpdateNotifications>true</cl:HideUpdateNotifications>
       </cl:ComponentMetadata>
@@ -1690,14 +1659,9 @@ FROM
       <NumberOfRows>2</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
-          <ColumnIndex>1</ColumnIndex>
+          <ColumnIndex>3</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>contractor_id</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>2</ColumnIndex>
-          <RowIndex>0</RowIndex>
-          <ParameterName>invoice_date</ParameterName>
+          <ParameterName>invoice_period</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
