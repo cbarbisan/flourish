@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1806.11</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2024-03-10T18:56:45.7118311Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2024-03-10T19:16:36.4548144Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -1547,6 +1547,10 @@ FROM v_invoice_details</CommandText>
                     <GroupExpressions>
                       <GroupExpression>=Fields!contractor_invoice_id.Value</GroupExpression>
                     </GroupExpressions>
+                    <PageBreak>
+                      <BreakLocation>Between</BreakLocation>
+                      <ResetPageNumber>true</ResetPageNumber>
+                    </PageBreak>
                   </Group>
                   <SortExpressions>
                     <SortExpression>
