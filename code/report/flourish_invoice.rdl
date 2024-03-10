@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1806.11</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2024-01-02T16:04:18.0768188Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2024-03-10T17:21:00.0100526Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -75,27 +75,24 @@
           </QueryDefinition>
         </rd:DesignerState>
         <CommandText>SELECT
-  contractor_invoice_details.session_id
-  ,contractor_invoice_details.session_date
-  ,contractor_invoice_details.service_name
-  ,contractor_invoice_details.client_code
-  ,contractor_invoice_details.service_role
-  ,contractor_invoice_details.contractor_amount
-  ,contractor_invoice_details.contractor_invoice_id AS [contractor_invoice_details contractor_invoice_id]
-  ,contractor_invoice.contractor_invoice_id AS [contractor_invoice contractor_invoice_id]
-  ,contractor_invoice.invoice_date
-  ,contractor_invoice.contractor_name
-  ,contractor_invoice.void
-  ,contractor_invoice_details.contractor_id
-  ,contractor_invoice_details.duration
-  ,contractor_invoice_details.charged
+  session_id
+  ,session_date
+  ,service_name
+  ,client_code
+  ,service_role
+  ,contractor_amount
+  ,contractor_invoice_id
+  ,invoice_date
+  ,contractor_name
+  ,void
+  ,contractor_id
+  ,duration
+  ,charged
 FROM
-  contractor_invoice
-  INNER JOIN contractor_invoice_details
-    ON contractor_invoice.contractor_invoice_id = contractor_invoice_details.contractor_invoice_id
+  v_invoice_details
 WHERE
-  contractor_invoice_details.contractor_id = @contractor_id
-  AND contractor_invoice.invoice_date = @invoice_date</CommandText>
+  contractor_id = @contractor_id
+  AND invoice_date = @invoice_date</CommandText>
       </Query>
       <Fields>
         <Field Name="session_id">
@@ -122,13 +119,9 @@ WHERE
           <rd:TypeName>System.Decimal</rd:TypeName>
           <DataField>contractor_amount</DataField>
         </Field>
-        <Field Name="contractor_invoice_details_contractor_invoice_id">
+        <Field Name="contractor_invoice_id">
           <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>contractor_invoice_details contractor_invoice_id</DataField>
-        </Field>
-        <Field Name="contractor_invoice_contractor_invoice_id">
-          <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>contractor_invoice contractor_invoice_id</DataField>
+          <DataField>contractor_invoice_id</DataField>
         </Field>
         <Field Name="invoice_date">
           <rd:TypeName>System.DateTime</rd:TypeName>
@@ -214,7 +207,7 @@ FROM
                                       <TextRuns>
                                         <TextRun>
                                           <Label>expInvoiceNumber</Label>
-                                          <Value>="C" &amp; Format(First(Fields!contractor_id.Value),"0000") &amp; "-" &amp; Format(First(Fields!contractor_invoice_contractor_invoice_id.Value),"0000000")</Value>
+                                          <Value>="C" &amp; Format(First(Fields!contractor_id.Value),"0000") &amp; "-" &amp; Format(First(Fields!contractor_invoice_id.Value),"0000000")</Value>
                                           <Style>
                                             <FontSize>12pt</FontSize>
                                             <FontWeight>Bold</FontWeight>
@@ -1322,7 +1315,7 @@ FROM
                               </SortExpressions>
                               <Left>1cm</Left>
                               <Height>1.4cm</Height>
-                              <Width>19.16754cm</Width>
+                              <Width>19.16755cm</Width>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -1564,14 +1557,14 @@ FROM
             <TablixRowHierarchy>
               <TablixMembers>
                 <TablixMember>
-                  <Group Name="contractor_invoice_contractor_invoice_id">
+                  <Group Name="contractor_invoice_id">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!contractor_invoice_contractor_invoice_id.Value</GroupExpression>
+                      <GroupExpression>contractor_invoice_id</GroupExpression>
                     </GroupExpressions>
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=Fields!contractor_invoice_contractor_invoice_id.Value</Value>
+                      <Value>=Fields!contractor_invoice_id.Value</Value>
                     </SortExpression>
                   </SortExpressions>
                   <TablixMembers>
