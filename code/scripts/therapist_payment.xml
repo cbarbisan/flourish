@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<BCPFORMAT xmlns="http://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<RECORD>
+		<!-- leading double quote -->
+		<FIELD ID="0" xsi:type="CharTerm" TERMINATOR="\&quot;" MAX_LENGTH="2" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- location -->
+		<FIELD ID="1" xsi:type="CharTerm" TERMINATOR="\&quot;," MAX_LENGTH="100" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- session id -->
+		<FIELD ID="2" xsi:type="CharTerm" TERMINATOR=",\&quot;" MAX_LENGTH="12"/>
+		<!-- session type -->
+		<FIELD ID="3" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="100" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- session date -->
+		<FIELD ID="4" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="38"/>
+		<!-- service name -->
+		<FIELD ID="5" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="400" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- service type -->
+		<FIELD ID="6" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="100" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- client code -->
+		<FIELD ID="7" xsi:type="CharTerm" TERMINATOR="\&quot;," MAX_LENGTH="20" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- client id -->
+		<FIELD ID="8" xsi:type="CharTerm" TERMINATOR=",\&quot;" MAX_LENGTH="12"/>
+		<!-- client tags -->
+		<FIELD ID="9" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- therapist name -->
+		<FIELD ID="10" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="400" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- supervisor -->
+		<FIELD ID="11" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="400" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- duration -->
+		<FIELD ID="12" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="12"/>
+		<!-- attendance -->
+		<FIELD ID="13" xsi:type="CharTerm" TERMINATOR="\&quot;," MAX_LENGTH="100" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- fee -->
+		<FIELD ID="14" xsi:type="CharTerm" TERMINATOR="," MAX_LENGTH="30"/>
+		<!-- charged -->
+		<FIELD ID="15" xsi:type="CharTerm" TERMINATOR="," MAX_LENGTH="30"/>
+		<!-- tax charged -->
+		<FIELD ID="16" xsi:type="CharTerm" TERMINATOR="," MAX_LENGTH="30"/>
+		<!-- payment amount -->
+		<FIELD ID="17" xsi:type="CharTerm" TERMINATOR="," MAX_LENGTH="30"/>
+		<!-- payment tax amount -->
+		<FIELD ID="18" xsi:type="CharTerm" TERMINATOR=",\&quot;" MAX_LENGTH="30"/>
+		<!-- payment date -->
+		<FIELD ID="19" xsi:type="CharTerm" TERMINATOR="\&quot;," MAX_LENGTH="20" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- total session amount paid -->
+		<FIELD ID="20" xsi:type="CharTerm" TERMINATOR="," MAX_LENGTH="30"/>
+		<!-- total session tax paid -->
+		<FIELD ID="21" xsi:type="CharTerm" TERMINATOR="," MAX_LENGTH="30"/>
+		<!-- invoice id -->
+		<FIELD ID="22" xsi:type="CharTerm" TERMINATOR=",\&quot;" MAX_LENGTH="12"/>
+		<!-- payment method -->
+		<FIELD ID="23" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="100" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- insurer -->
+		<FIELD ID="24" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="400" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- receipt confirmation number -->
+		<FIELD ID="25" xsi:type="CharTerm" TERMINATOR="\&quot;,\&quot;" MAX_LENGTH="100" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+		<!-- payment status -->
+		<FIELD ID="26" xsi:type="CharTerm" TERMINATOR="\&quot;" MAX_LENGTH="40" COLLATION="SQL_Latin1_General_CP1_CS_AS"/>
+	</RECORD>
+	<ROW>
+		<COLUMN SOURCE="1" NAME="location" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="2" NAME="session_id" xsi:type="SQLINT"/>
+		<COLUMN SOURCE="3" NAME="session_type" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="4" NAME="session_date" xsi:type="SQLDATETIME"/>
+		<COLUMN SOURCE="5" NAME="service_name" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="6" NAME="service_type" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="7" NAME="client_code" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="8" NAME="client_id" xsi:type="SQLINT"/>
+		<COLUMN SOURCE="9" NAME="client_tags" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="10" NAME="therapist_name" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="11" NAME="supervisor" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="12" NAME="duration" xsi:type="SQLINT"/>
+		<COLUMN SOURCE="13" NAME="attendance" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="14" NAME="fee" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="15" NAME="charged" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="16" NAME="tax_charged" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="17" NAME="payment_amount" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="18" NAME="payment_tax_amount" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="19" NAME="payment_date" xsi:type="SQLDATE"/>
+		<COLUMN SOURCE="20" NAME="total_session_amount_paid" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="21" NAME="total_session_tax_paid" xsi:type="SQLMONEY"/>
+		<COLUMN SOURCE="22" NAME="invoice_id" xsi:type="SQLINT"/>
+		<COLUMN SOURCE="23" NAME="payment_method" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="24" NAME="insurer" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="25" NAME="receipt_confirmation_number" xsi:type="SQLNVARCHAR"/>
+		<COLUMN SOURCE="26" NAME="payment_status" xsi:type="SQLNVARCHAR"/>
+	 </ROW>
+</BCPFORMAT>
