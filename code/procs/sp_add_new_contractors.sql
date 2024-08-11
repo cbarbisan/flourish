@@ -7,12 +7,12 @@ BEGIN
     WITH CONTRACTOR_LIST AS (
         SELECT      therapist_name AS contractor_name,
                     MIN(CAST(session_date AS DATE)) AS start_date
-        FROM        dbo.owl_session
+        FROM        dbo.s_session
         GROUP BY    therapist_name
         UNION
         SELECT      supervisor AS contractor_name,
                     MIN(CAST(session_date AS DATE)) AS start_date
-        FROM        dbo.owl_session
+        FROM        dbo.s_session
         WHERE       supervisor IS NOT NULL
         GROUP BY    supervisor
     )
