@@ -12,7 +12,6 @@ GO
 -- Calculation of amounts is in this view
 
 CREATE OR ALTER VIEW [dbo].[v_session_details]
-WITH SCHEMABINDING
 AS
 -- There can be more than 1 payment for a session, but it's very rare.
 -- In the cases where there are > 1 payment, the first payment has
@@ -39,7 +38,7 @@ AS
 WITH SESSION_PAYMENT AS (
     SELECT      session_id,
                 MIN(payment_date) AS payment_date
-    FROM        dbo.payment
+    FROM        dbo.s_payment
     GROUP BY    session_id
 )
 SELECT      sp.payment_date,
@@ -60,7 +59,7 @@ SELECT      sp.payment_date,
             CAST(ROUND((COALESCE(sc.service_cut,0.7)*sess.charged),2) AS MONEY) AS therapist_amount,
             CAST(ROUND((COALESCE(sc.supervision_cut,0.0)*sess.charged),2) AS MONEY) AS supervisor_amount,
             sess.charged - (CAST(ROUND((COALESCE(sc.service_cut,0.7)*sess.charged),2) AS MONEY)) - (CAST(ROUND((COALESCE(sc.supervision_cut,0.0)*sess.charged),2) AS MONEY)) AS clinic_amount
-FROM        dbo.owl_session sess
+FROM        dbo.s_session sess
 LEFT JOIN   dbo.contractor t
 ON          sess.therapist_name = t.contractor_name
 LEFT JOIN   dbo.contractor s
