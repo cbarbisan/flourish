@@ -7,6 +7,7 @@ import datetime
 
 from airflow import DAG
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from airflow.sensors.filesystem import FileSensor
 
 DAG_ID = "generate_therapist_invoice"
 
@@ -18,8 +19,26 @@ with DAG(
 	tags=["flourish"],
 	catchup=False,
 ) as dag:
+	
+	detect_session_data = FileSensor(
+		task_id = "wait_for_session_data",
+		fs_conn_id = "fs_flourish_staging",
+		filepath = "Therapist_Session_Export_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9]_to_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9].csv",
+		poke_interval = 30,
+		timeout = 60 * 30,
+		mode = "poke"
+	)
+	
+	detect_payment_data = FileSensor(
+		task_id = "wait_for_payment_data",
+		fs_conn_id = "fs_flourish_staging",
+		filepath = "Therapist_Payment_Export_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9]_to_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9].csv",
+		poke_interval = 30,
+		timeout = 60 * 30,
+		mode = "poke"
+	)
     
-	delete_session_data_task = SQLExecuteQueryOperator(
+	delete_session_data = SQLExecuteQueryOperator(
 		task_id="delete_session_data",
 		conn_id="conn_flourish",
 		sql=r"""EXEC dbo.sp_delete_session_data""",
@@ -27,7 +46,7 @@ with DAG(
 		dag=dag,
 	)
 
-	delete_payment_data_task = SQLExecuteQueryOperator(
+	delete_payment_data = SQLExecuteQueryOperator(
 		task_id="delete_payment_data",
 		conn_id="conn_flourish",
 		sql=r"""EXEC dbo.sp_delete_payment_data""",
@@ -36,8 +55,8 @@ with DAG(
 	)
 	
 	(
-		delete_session_data_task
-		>> delete_payment_data_task
+		detect_session_data >> delete_session_data,
+		detect_payment_data >> delete_payment_data
 	)
 
 #    from tests.system.utils.watcher import watcher
