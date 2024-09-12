@@ -35,9 +35,14 @@ fi
 # We expect that issues related to reading, execting or writing files will be
 # handled by the awk command, and it will return an appropriate error message
 # and non-zero error code in those cases
-mawk -f fix_owl_dates.awk $1 > $2
+TARGET_FILE=$1.new
+echo $TARGET_FILE
+mawk -f /opt/airflow/apps/flourish/scripts/fix_owl_dates.awk $1 > $TARGET_FILE
 
 if [ $? -ne 0 ]; then
     echo "Unable to fix dates in OWL export file: $1"
 	exit 1
+else
+	echo "Export file $1 fixed and re-written to:"
+	echo $TARGET_FILE
 fi
