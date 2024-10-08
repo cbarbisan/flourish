@@ -17,17 +17,12 @@ function install_mssql_tools() {
         echo
         return
     fi
-    packages=("mssql-tools")
-
-    #common::import_trusted_gpg "EB3E94ADBE1229CF" "microsoft"
+    packages=("mssql-tools18")
 
     echo
     echo "${COLOR_BLUE}Installing mssql tools${COLOR_RESET}"
     echo
 
-    #echo "deb [arch=amd64,arm64] https://packages.microsoft.com/debian/$(lsb_release -rs)/prod $(lsb_release -cs) main" > \
-    #    /etc/apt/sources.list.d/mssql-tools-release.list
-	#ACCEPT_EULA='Y'
     ACCEPT_EULA=y DEBIAN_FRONTEND=noninteractive \
 	apt-get update -yqq
 	ACCEPT_EULA=y DEBIAN_FRONTEND=noninteractive \

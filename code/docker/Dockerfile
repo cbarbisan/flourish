@@ -4,4 +4,5 @@ RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" -r /requirem
 USER root
 COPY install_mssql_tools.sh /scripts/docker
 RUN bash /scripts/docker/install_mssql_tools.sh
+ENV PATH="$PATH:/opt/mssql-tools18/bin"
 USER airflow
